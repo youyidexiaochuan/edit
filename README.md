@@ -1,4 +1,4 @@
-# 成功编译了。Android 安卓32位armv7 和。 64位arm64版本的微软的edit。终于可以在Termux 上跑了。
+# 成功编译了。Android 安卓32位armv7 和。 64位arm64版本的微软的edit。终于可以在Termux 上跑了。但是但是有缺陷，因为安卓系统缺少ICU库， International Components for Unicode（Unicode 国际组件）所以搜索相关功能无法使用。
 # ![Application Icon for Edit](./assets/edit.svg) Edit
 
 A simple editor for simple needs.
