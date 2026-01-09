@@ -1,12 +1,10 @@
-name: Android Release
+name: Android Release (No ICU)
 
-# 只有当你打了一个以 'v' 开头的标签（如 v1.2.1, v1.2.2）时，才会触发
 on:
   push:
     tags:
       - "v*"
 
-# 赋予写权限，这样机器人才能帮你创建 Release
 permissions:
   contents: write
 
@@ -27,48 +25,43 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 1. 安装 Rust Nightly
       - name: Install Rust Nightly
         uses: dtolnay/rust-toolchain@nightly
         with:
           targets: ${{ matrix.target }}
 
-      # 2. 安装 Cross
       - name: Install Cross
         run: cargo install cross --git https://github.com/cross-rs/cross
 
-      # 3. 自动修复源代码 (为了解决 32位安卓报错)
+      # 自动修复 32 位源码报错 (依然保留，以防万一)
       - name: Patch Source Code
         run: |
           if [ -f crates/edit/src/sys/unix.rs ]; then
             sed -i 's/st_dev: stat.st_dev/st_dev: stat.st_dev as _/g' crates/edit/src/sys/unix.rs
             sed -i 's/st_ino: stat.st_ino/st_ino: stat.st_ino as _/g' crates/edit/src/sys/unix.rs
-            echo "Patch applied successfully."
+            echo "Patch applied."
           fi
 
-      # 4. 编译
-      - name: Build Binary
+      # 【关键修改】加入 --no-default-features 参数
+      # 这会关闭 ICU 依赖，生成纯静态、无依赖的可执行文件
+      - name: Build Binary (Lightweight)
         run: |
-          cross build --target ${{ matrix.target }} --config .cargo/release-nightly.toml --release
+          cross build --target ${{ matrix.target }} --config .cargo/release-nightly.toml --release --no-default-features
 
-      # 5. 改名准备发布
       - name: Prepare Files
         run: |
           SRC="target/${{ matrix.target }}/release"
-          # 如果是 edit 就改名为 edit-版本号-架构
-          # github.ref_name 就是你打的标签名 (例如 v1.2.1)
+          # 重命名文件
           if [ -f "$SRC/edit" ]; then
             mv "$SRC/edit" "edit-${{ github.ref_name }}-${{ matrix.name }}"
           elif [ -f "$SRC/msedit" ]; then
             mv "$SRC/msedit" "msedit-${{ github.ref_name }}-${{ matrix.name }}"
           fi
 
-      # 6. 发布到 GitHub Releases
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          # 把改好名的文件上传上去
           files: |
             edit-${{ github.ref_name }}-${{ matrix.name }}
             msedit-${{ github.ref_name }}-${{ matrix.name }}
