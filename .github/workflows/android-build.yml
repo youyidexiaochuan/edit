@@ -20,7 +20,7 @@ jobs:
             name: arm64
           - target: armv7-linux-androideabi
             name: armv7
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,12 +42,12 @@ jobs:
             echo "Patch applied."
           fi
 
-# 【关键修改】加入 --no-default-features 参数
+      # 【关键修改】加入 --no-default-features 参数
       # 这会关闭 ICU 依赖，生成纯静态、无依赖的可执行文件
       # 同时加入 strip=true 和 lto=true 以大幅减小体积
-       - name: Build Binary (Lightweight)
-         run: |
-           cross build --target ${{ matrix.target }} --config .cargo/release-nightly.toml --release --no-default-features --config profile.release.strip=true --config profile.release.lto=true
+      - name: Build Binary (Lightweight)
+        run: |
+          cross build --target ${{ matrix.target }} --config .cargo/release-nightly.toml --release --no-default-features --config profile.release.strip=true --config profile.release.lto=true
 
       - name: Prepare Files
         run: |
