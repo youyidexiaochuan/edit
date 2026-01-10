@@ -139,11 +139,14 @@ fn draw_search(ctx: &mut Context, state: &mut State) {
                 loc(LocId::SearchWholeWord),
                 &mut state.search_options.whole_word,
             );
-            change |= ctx.checkbox(
-                "use-regex",
-                loc(LocId::SearchUseRegex),
-                &mut state.search_options.use_regex,
-            );
+            #[cfg(feature = "regex")]
+            {
+                change |= ctx.checkbox(
+                    "use-regex",
+                    loc(LocId::SearchUseRegex),
+                    &mut state.search_options.use_regex,
+                );
+            }
             if state.wants_search.kind == StateSearchKind::Replace
                 && ctx.button("replace-all", loc(LocId::SearchReplaceAll), ButtonStyle::default())
             {
