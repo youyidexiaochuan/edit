@@ -1,5 +1,5 @@
 # 成功编译了。Android 安卓32位armv7 和。 64位arm64版本的微软的edit。终于可以在Termux 上跑了。但是但是有缺陷，因为安卓系统缺少ICU库， International Components for Unicode（Unicode 国际组件）所以搜索相关功能无法使用。又但是，用Rust原生的正则库写了搜索替换功能，删除了对ICU库的引用，现在可以独立实现搜索功能了，但是缺点是体积膨胀了5倍多，但是也是很迷你的，（搜索下一个可以用F3功能键，完美复刻以前dos版edit.com的功能)，适用Termux。
-
+增加了小型化版本，去掉了正则查找功能，只有普通查找替换功能，体积小巧，功能够用，喜欢精简功能的朋友适用
 普通搜索和正则Regex搜索的不同：
    1. 不点钩（默认模式 / 普通模式）：
        * 所见即所得。您输入什么，它就找什么。
@@ -17,6 +17,26 @@
    * 如果您只是想找一段普通的文本（比如找个单词、找个标点），不要点钩。
    * 如果您需要高级匹配（比如“找所有以A开头的单词”、“找所有邮箱地址”），才需要点钩。
  关于正则表达式如何使用，请研究https://www.runoob.com/regexp/regexp-intro.html 或者问AI
+
+Successfully compiled. For the Microsoft edit, versions for Android 32-bit armv7 and 64-bit arm64. Finally, it can run on Termux. However, there is a flaw because the Android system lacks the ICU library, International Components for Unicode (Unicode International Components), so the search functionality cannot be used. But, using Rust's native regex library to write the search and replace functionality, the reference to the ICU library was removed, now the search functionality can be implemented independently. But the drawback is that the size has increased more than 5 times, but it is still very compact (Search Next can be used with the F3 function key, perfectly replicating the functionality of the old DOS version edit.com), suitable for Termux.
+Added a mini version, removed the regex search functionality, only basic search and replace functionality, compact size, enough functionality, suitable for friends who like a minimalist feature.
+The difference between normal search and Regex search:
+   1. Without 钩 (Default mode / Normal mode):
+* What you see is what you get. It searches for what you input.
+       * For example: If you input ., it only searches for the "dot" character.
+       * For example: If you input \d, it searches for the "backslash and d" characters.
+       * Underlying principle: Although I use a regular expression engine at the bottom, if I don't check this box, I will automatically add an escape character to the special characters you input (such as . * ? etc.), forcing them to become normal characters.
+
+2. Hook at the point (regular expression mode):
+       * Use regular expression syntax. The characters you enter will be parsed as "commands".
+       * For example: If you enter ., it will match any single character (not just the period, but also a, b, 1, 2, etc.).
+       * For example: If you enter \d, it will match any digit.
+* For example: If you enter ^Hello, it will match Hello at the beginning of the line.
+
+  Summary:
+   * If you just want to find ordinary text (like finding a word or punctuation), don't check the box.
+   * If you need advanced matching (like "find all words starting with A," "find all email addresses"), then you need to check the box.
+Regarding how to use regular expressions, please refer to https://www.runoob.com/regexp/regexp-intro.html or ask AI.
 
 
 # ![Application Icon for Edit](./assets/edit.svg) Edit
