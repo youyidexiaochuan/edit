@@ -26,7 +26,14 @@ incremental = true          # Improves re-compile times
 codegen-units = 16          # Make compiling criterion faster (16 is the default, but profile.release sets it to 1)
 lto = "thin"                # Similarly, speed up linking by a ton
 
+[dependencies]
+stdext = { path = "./crates/stdext" }
+unicode-gen = { path = "./crates/unicode-gen" }
+
 [workspace.dependencies]
 edit = { path = "./crates/edit" }
 stdext = { path = "./crates/stdext" }
-unicode-gen = { path = "./crates/unicode-gen" }
+regex = { version = "1", optional = true }
+
+[features]
+default = ["regex"]

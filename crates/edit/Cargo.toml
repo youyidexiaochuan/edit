@@ -14,13 +14,14 @@ categories = ["text-editors"]
 name = "lib"
 harness = false
 
-[features]
-# Display editor latency in the top-right corner
-debug-latency = []
-
 [dependencies]
 stdext.workspace = true
-regex = "1"
+regex = { workspace = true, optional = true }
+
+[features]
+default = ["regex"]
+# Display editor latency in the top-right corner
+debug-latency = []
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

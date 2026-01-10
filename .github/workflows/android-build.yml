@@ -20,7 +20,7 @@ jobs:
             name: arm64
           - target: armv7-linux-androideabi
             name: armv7
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
       - name: Install Cross
         run: cargo install cross --git https://github.com/cross-rs/cross
 
-      # 自动修复 32 位源码报错 (依然保留，以防万一)
+      # 自动修复 32 位源码报错
       - name: Patch Source Code
         run: |
           if [ -f crates/edit/src/sys/unix.rs ]; then
@@ -42,26 +42,36 @@ jobs:
             echo "Patch applied."
           fi
 
-      # 【关键修改】加入 --no-default-features 参数
-      # 这会关闭 ICU 依赖，生成纯静态、无依赖的可执行文件
-      - name: Build Binary (Lightweight)
+      # 1. 编译标准版 (带正则，约 700KB)
+      - name: Build Full Version (With Regex)
         run: |
-          cross build --target ${{ matrix.target }} --config .cargo/release-nightly.toml --release --no-default-features
-
-      - name: Prepare Files
-        run: |
+          cross build --target ${{ matrix.target }} --config .cargo/release-nightly.toml --release --config profile.release.strip=true --config profile.release.lto=true
+          
+          # 重命名移动
           SRC="target/${{ matrix.target }}/release"
-          # 重命名文件
-          if [ -f "$SRC/edit" ]; then
-            mv "$SRC/edit" "edit-${{ github.ref_name }}-${{ matrix.name }}"
-          elif [ -f "$SRC/msedit" ]; then
-            mv "$SRC/msedit" "msedit-${{ github.ref_name }}-${{ matrix.name }}"
-          fi
+          if [ -f "$SRC/edit" ]; then mv "$SRC/edit" "edit-full"; fi
+          if [ -f "$SRC/msedit" ]; then mv "$SRC/msedit" "msedit-full"; fi
+
+      # 2. 编译极简版 (无正则，约 150KB)
+      - name: Build Lite Version (No Regex)
+        run: |
+          cross build --target ${{ matrix.target }} --config .cargo/release-nightly.toml --release --no-default-features --config profile.release.strip=true --config profile.release.lto=true
+          
+          # 重命名移动
+          SRC="target/${{ matrix.target }}/release"
+          if [ -f "$SRC/edit" ]; then mv "$SRC/edit" "edit-lite"; fi
+          if [ -f "$SRC/msedit" ]; then mv "$SRC/msedit" "msedit-lite"; fi
+
+      - name: Prepare Release Files
+        run: |
+          # 整理文件名，加上架构后缀
+          mv edit-full edit-full-${{ github.ref_name }}-${{ matrix.name }}
+          mv edit-lite edit-lite-${{ github.ref_name }}-${{ matrix.name }}
 
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            edit-${{ github.ref_name }}-${{ matrix.name }}
-            msedit-${{ github.ref_name }}-${{ matrix.name }}
+            edit-full-*
+            edit-lite-*
