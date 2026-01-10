@@ -1,4 +1,4 @@
-# 成功编译了。Android 安卓32位armv7 和。 64位arm64版本的微软的edit。终于可以在Termux 上跑了。但是但是有缺陷，因为安卓系统缺少ICU库， International Components for Unicode（Unicode 国际组件）所以搜索相关功能无法使用。
+# 成功编译了。Android 安卓32位armv7 和。 64位arm64版本的微软的edit。终于可以在Termux 上跑了。但是但是有缺陷，因为安卓系统缺少ICU库， International Components for Unicode（Unicode 国际组件）所以搜索相关功能无法使用。又但是，用Rust原生的正则库写了搜索替换功能，删除了对ICU库的引用，现在可以独立实现搜索功能了，但是缺点是体积膨胀了3-4倍，但是也是很迷你的，（搜索下一个可以用F3功能键，完美复刻以前dos版edit.com的功能)
 # ![Application Icon for Edit](./assets/edit.svg) Edit
 
 A simple editor for simple needs.
