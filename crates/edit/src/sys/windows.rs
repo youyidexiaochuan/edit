@@ -548,42 +548,6 @@ pub unsafe fn get_proc_address<T>(
     }
 }
 
-pub struct LibIcu {
-    pub libicuuc: NonNull<c_void>,
-    pub libicui18n: NonNull<c_void>,
-}
-
-pub fn load_icu() -> apperr::Result<LibIcu> {
-    const fn const_ptr_u16_eq(a: *const u16, b: *const u16) -> bool {
-        unsafe {
-            let mut a = a;
-            let mut b = b;
-            loop {
-                if *a != *b {
-                    return false;
-                }
-                if *a == 0 {
-                    return true;
-                }
-                a = a.add(1);
-                b = b.add(1);
-            }
-        }
-    }
-
-    const LIBICUUC: *const u16 = w_env!("EDIT_CFG_ICUUC_SONAME");
-    const LIBICUI18N: *const u16 = w_env!("EDIT_CFG_ICUI18N_SONAME");
-
-    if const { const_ptr_u16_eq(LIBICUUC, LIBICUI18N) } {
-        let icu = unsafe { load_library(LIBICUUC)? };
-        Ok(LibIcu { libicuuc: icu, libicui18n: icu })
-    } else {
-        let libicuuc = unsafe { load_library(LIBICUUC)? };
-        let libicui18n = unsafe { load_library(LIBICUI18N)? };
-        Ok(LibIcu { libicuuc, libicui18n })
-    }
-}
-
 /// Returns a list of preferred languages for the current user.
 pub fn preferred_languages(arena: &Arena) -> Vec<ArenaString<'_>, &Arena> {
     // If the GetUserPreferredUILanguages() don't fit into 512 characters,
